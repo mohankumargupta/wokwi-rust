@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "author": "Borja Faci",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "board-esp32-c3-devkitm-1", "id": "esp", "top": 0, "left": 0, "attrs": {} },
+    { "type": "wokwi-neopixel", "id": "rgb1", "top": 63.7, "left": -77.8, "attrs": {} },
+    { "type": "wokwi-vcc", "id": "vcc1", "top": 19.96, "left": -105.6, "attrs": {} },
+    { "type": "wokwi-gnd", "id": "gnd1", "top": 86.4, "left": -106.2, "attrs": {} }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+    [ "rgb1:DIN", "esp:2", "green", [ "h0" ] ],
+    [ "vcc1:VCC", "rgb1:VDD", "red", [ "v0" ] ],
+    [ "gnd1:GND", "rgb1:DOUT", "black", [ "v0" ] ]
+  ],
+  "dependencies": {}
+}
