@@ -28,5 +28,15 @@ impl<'a> EffectController<'a> {
     pub fn get_current_effect(&mut self) -> &mut dyn LedEffect {
         self.effects[self.current_effect_index].as_mut()
     }
+
+    pub fn set_effect_by_name(&mut self, name: &str)  {
+        for (i, effect) in self.effects.iter().enumerate() {
+            if effect.name() == name {
+                self.current_effect_index = i;
+                
+            }
+        }
+        
+    }    
 }
 

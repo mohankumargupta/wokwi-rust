@@ -17,7 +17,7 @@ use esp_hal::{
 };
 use esp_println::println;
 use esp_hal_smartled::{SmartLedsAdapter, smart_led_buffer};
-use led_effects::{controller::EffectController, policedot_effect::PoliceDot};
+use led_effects::{controller::EffectController, policedot_effect::PoliceDot, policetrail_effect::PoliceTrail};
 use led_effects::solid_effect::SolidColor;
 use smart_leds::{RGB8, SmartLedsWrite};
 
@@ -65,7 +65,8 @@ fn main() -> ! {
         color: RGB8::new(255, 0, 0),
     }));
     effect_controller.add_effect(Box::new(PoliceDot::new(1.0, 2, NUM_LEDS)));
-    effect_controller.next_effect();
+    effect_controller.add_effect(Box::new(PoliceTrail::new(1.0, 2, 8, NUM_LEDS)));
+    effect_controller.set_effect_by_name("PoliceTrail");
     
     let delay = Delay::new();
 
