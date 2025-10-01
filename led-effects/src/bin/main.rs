@@ -28,7 +28,7 @@ use alloc::boxed::Box;
 // This creates a default app-descriptor required by the esp-idf bootloader.
 esp_bootloader_esp_idf::esp_app_desc!();
 
-const NUM_LEDS: usize = 12;
+const NUM_LEDS: usize = 16;
 
 // --- MAIN FUNCTION CHANGED TO BLOCKING ---
 #[main]
