@@ -10,5 +10,7 @@ hello:
 hell0_troubleshooting:
     cd hello-led; cargo tree --edges features -p hello-led
 
+led:
+    cd led-effects; cargo build
 
 

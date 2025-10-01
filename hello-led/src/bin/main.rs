@@ -11,9 +11,10 @@ use embassy_time::{Duration, Timer};
 use esp_backtrace as _;
 use esp_hal::clock::CpuClock;
 use esp_hal::timer::systimer::SystemTimer;
-use log::info;
+//use log::info;
 use esp_hal::{rmt::Rmt, time::Rate};
 use esp_hal_smartled::{SmartLedsAdapterAsync, buffer_size_async};
+use esp_println::println;
 use smart_leds::{
     RGB8, SmartLedsWriteAsync, brightness, gamma,
     hsv::{Hsv, hsv2rgb},
@@ -58,14 +59,14 @@ async fn main(spawner: Spawner) {
     };
     let mut data: RGB8;
     let level = 10;
-
-    info!("Embassy initialized!\r");
+    
+    println!("Embassy initialized!\r");
 
     // TODO: Spawn some tasks
     let _ = spawner;
 
     loop {
-        info!("Hello world!\r");
+        println!("Hello world!\r");
         for hue in 0..=255 {
             color.hue = hue;
             // Convert from the HSV color space (where we can easily transition from one
