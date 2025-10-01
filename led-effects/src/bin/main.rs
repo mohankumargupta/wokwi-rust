@@ -64,7 +64,7 @@ fn main() -> ! {
     effect_controller.add_effect(Box::new(SolidColor {
         color: RGB8::new(255, 0, 0),
     }));
-    effect_controller.add_effect(Box::new(PoliceDot::new(10.0, 2, NUM_LEDS)));
+    effect_controller.add_effect(Box::new(PoliceDot::new(1.0, 2, NUM_LEDS)));
     effect_controller.next_effect();
     
     let delay = Delay::new();
@@ -72,7 +72,7 @@ fn main() -> ! {
     // --- LOOP CHANGED TO USE BLOCKING CALLS ---
     loop {
         let now = Instant::now();
-       let delta = (now - last_update).as_millis() as f32;
+       let delta = (now - last_update).as_millis() as f32 / 1000.0;
         last_update = now;
 
         let current_effect = effect_controller.get_current_effect();
