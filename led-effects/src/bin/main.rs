@@ -32,7 +32,7 @@ use alloc::vec::Vec;
 // For more information see: <https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/system/app_image_format.html#application-description>
 esp_bootloader_esp_idf::esp_app_desc!();
 
-const NUM_LEDS: usize = 12;
+const NUM_LEDS: usize = 4;
 
 #[esp_hal_embassy::main]
 async fn main(spawner: Spawner) {
@@ -63,9 +63,9 @@ async fn main(spawner: Spawner) {
     // We use one of the RMT channels to instantiate a `SmartLedsAdapterAsync` which can
     // be used directly with all `smart_led` implementations
     let rmt_channel = rmt.channel0;
-    let rmt_buffer = [0_u32; buffer_size_async(NUM_LEDS)];
+    let rmt_buffer = [0_u32; buffer_size_async(4)];
 
-    let mut led: SmartLedsAdapterAsync<_, 300> =  SmartLedsAdapterAsync::new(rmt_channel, peripherals.GPIO3, rmt_buffer);
+    let mut led: SmartLedsAdapterAsync<_, 100> =  SmartLedsAdapterAsync::new(rmt_channel, peripherals.GPIO3, rmt_buffer);
 
 
     println!("LED Setup done.\r");
@@ -93,8 +93,9 @@ async fn main(spawner: Spawner) {
             leds[i] = current_effect.render(i, NUM_LEDS);
         }
 
-        led.write(leds.iter().cloned()).await.unwrap();
 
+        led.write(brightness(leds.iter().cloned(), 255)).await.unwrap();
+        
         
         Timer::after(Duration::from_secs(1)).await;
     }
