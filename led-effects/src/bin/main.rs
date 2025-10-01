@@ -9,16 +9,24 @@
 use embassy_executor::Spawner;
 use embassy_time::{Duration, Timer};
 use esp_backtrace as _;
-use esp_hal::clock::CpuClock;
+use esp_hal::{clock::CpuClock, time::Instant};
 use esp_hal::timer::systimer::SystemTimer;
 use esp_println::println;
 //use log::info;
+use smart_leds::{
+    RGB8, SmartLedsWriteAsync, brightness, gamma,
+    hsv::{Hsv, hsv2rgb}
+};
+
+
 
 extern crate alloc;
 
 // This creates a default app-descriptor required by the esp-idf bootloader.
 // For more information see: <https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/system/app_image_format.html#application-description>
 esp_bootloader_esp_idf::esp_app_desc!();
+
+const NUM_LEDS: usize = 12;
 
 #[esp_hal_embassy::main]
 async fn main(spawner: Spawner) {
@@ -35,7 +43,15 @@ async fn main(spawner: Spawner) {
     esp_hal_embassy::init(timer0.alarm0);
 
     println!("Setup done.\r");
-    println!("Setup done.\r");
+
+    let mut leds: [RGB8; NUM_LEDS] = [RGB8::default(); NUM_LEDS];
+    let mut last_update = Instant::now();
+
+    
+
+        // -- Create and populate the EffectController --
+    let mut effect_controller = effect::EffectController::new();
+    effect_controller.add_effect(Box::new(SolidColor { color: RGB8::new(255, 0, 0) }));
 
     // TODO: Spawn some tasks
     let _ = spawner;
