@@ -65,7 +65,7 @@ async fn main(spawner: Spawner) {
     let rmt_channel = rmt.channel0;
     let rmt_buffer = [0_u32; buffer_size_async(NUM_LEDS)];
 
-    let mut led: SmartLedsAdapterAsync<_, 300> =  SmartLedsAdapterAsync::new(rmt_channel, peripherals.GPIO2, rmt_buffer);
+    let mut led: SmartLedsAdapterAsync<_, 300> =  SmartLedsAdapterAsync::new(rmt_channel, peripherals.GPIO3, rmt_buffer);
 
 
     println!("LED Setup done.\r");
