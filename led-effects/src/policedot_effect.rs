@@ -29,7 +29,7 @@ impl PoliceDot {
         }
     }
 
-    fn in_range(index: usize, start: usize, end: usize, num_leds: usize) -> bool {
+    fn in_range(index: usize, start: usize, end: usize, _num_leds: usize) -> bool {
         if start <= end {
             index >= start && index <= end
         } else {
