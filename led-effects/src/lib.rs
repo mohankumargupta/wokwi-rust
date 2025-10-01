@@ -1,6 +1,5 @@
 #![no_std]
 
-
-mod effect;
-mod solid_effect;
-mod controller;
+pub mod effect;
+pub mod solid_effect;
+pub mod controller;
