@@ -17,7 +17,7 @@ use esp_hal::{
 };
 use esp_println::println;
 use esp_hal_smartled::{SmartLedsAdapter, smart_led_buffer};
-use led_effects::controller::EffectController;
+use led_effects::{controller::EffectController, policedot_effect::PoliceDot};
 use led_effects::solid_effect::SolidColor;
 use smart_leds::{RGB8, SmartLedsWrite};
 
@@ -64,6 +64,8 @@ fn main() -> ! {
     effect_controller.add_effect(Box::new(SolidColor {
         color: RGB8::new(255, 0, 0),
     }));
+    effect_controller.add_effect(Box::new(PoliceDot::new(10.0, 2, NUM_LEDS)));
+    effect_controller.next_effect();
     
     let delay = Delay::new();
 
@@ -85,6 +87,6 @@ fn main() -> ! {
 
         // --- DELAY IS NOW BLOCKING ---
         //delay.delay_ms(1000u32);
-        delay.delay_millis(1000u32);
+        delay.delay_millis(50u32);
     }
 }
