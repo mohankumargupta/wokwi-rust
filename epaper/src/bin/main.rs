@@ -26,12 +26,10 @@ use embedded_hal_bus::spi::ExclusiveDevice;
 use embedded_graphics::{
     // mono_font::MonoTextStyleBuilder,
     // pixelcolor::BinaryColor::On as Black,
-    pixelcolor::{
-        BinaryColor::{Off as White, On as Black},
-    
-    },
+    draw_target::DrawTargetExt,
+    pixelcolor::BinaryColor::{Off as White, On as Black},
     prelude::*,
-    primitives::{Circle, Line, PrimitiveStyleBuilder, Sector},
+    primitives::{Circle, Line, PrimitiveStyleBuilder, Sector, circle},
     //text::{Baseline, Text, TextStyleBuilder},
 };
 
@@ -106,10 +104,16 @@ async fn main(spawner: Spawner) {
     let mut epd = Epd2in9::new(&mut spi_dev, busy, dc, reset, &mut delay, None)
        .expect("EPD init failed");
 
-       let mut display = Display2in9::default();
+    let mut display = Display2in9::default();
+    display.set_rotation(DisplayRotation::Rotate90);
+    let bbox = display.bounding_box();
+    let width = bbox.size.width as i32;
+    let height = bbox.size.height as i32;
 
     info!("Clearing display\r\n");
     let _ = display.clear(White.into());
+
+    let mut shifted_display = display.translated(Point::new(0, -12));
 
     let style = PrimitiveStyleBuilder::new()
         .stroke_color(Color::Black)
@@ -117,9 +121,11 @@ async fn main(spawner: Spawner) {
         .fill_color(Color::Black)
         .build();
 
-    Sector::new(Point::new(10, 20), 30, 180.0.deg(), -90.0.deg())
+    let circle_diameter = 100;
+    let circle_radius = circle_diameter / 2;
+    Sector::new(Point::new(width/2 - circle_radius , -40 + height/2), circle_diameter as u32, 0.0.deg(), -315.0.deg())
         .into_styled(style)
-        .draw(&mut display)
+        .draw(&mut shifted_display)
         .unwrap();
 
     let _ = epd.update_and_display_frame(&mut spi_dev, &display.buffer(), &mut delay);
