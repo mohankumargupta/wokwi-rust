@@ -7,7 +7,7 @@
 )]
 
 use embassy_executor::Spawner;
-use embassy_time::{Duration, Timer};
+//use embassy_time::{Duration, Timer};
 use esp_backtrace as _;
 use esp_hal::{
     clock::CpuClock,
@@ -24,12 +24,15 @@ use log::info;
 use epd_waveshare::{epd2in9_v2::*, graphics::DisplayRotation, prelude::*};
 use embedded_hal_bus::spi::ExclusiveDevice;
 use embedded_graphics::{
-    mono_font::MonoTextStyleBuilder,
-    pixelcolor::BinaryColor::On as Black,
-    pixelcolor::BinaryColor::{self, Off as White},
+    // mono_font::MonoTextStyleBuilder,
+    // pixelcolor::BinaryColor::On as Black,
+    pixelcolor::{
+        BinaryColor::{Off as White, On as Black},
+    
+    },
     prelude::*,
-    primitives::{Circle, Line, PrimitiveStyleBuilder},
-    text::{Baseline, Text, TextStyleBuilder},
+    primitives::{Circle, Line, PrimitiveStyleBuilder, Sector},
+    //text::{Baseline, Text, TextStyleBuilder},
 };
 
 extern crate alloc;
@@ -59,7 +62,7 @@ async fn main(spawner: Spawner) {
     let mosi = peripherals.GPIO23;
     let cs = Output::new(peripherals.GPIO5, Level::Low, OutputConfig::default());//peripherals.GPIO5;
 
-    let mut spi = Spi::new(
+    let spi = Spi::new(
         peripherals.SPI2,
         Config::default()
             .with_frequency(Rate::from_khz(100))
@@ -108,7 +111,19 @@ async fn main(spawner: Spawner) {
     info!("Clearing display\r\n");
     let _ = display.clear(White.into());
 
-    let _ = epd.sleep(&mut spi_dev, &mut delay);
+    let style = PrimitiveStyleBuilder::new()
+        .stroke_color(Color::Black)
+        .stroke_width(3)
+        .fill_color(Color::Black)
+        .build();
+
+    Sector::new(Point::new(10, 20), 30, 180.0.deg(), -90.0.deg())
+        .into_styled(style)
+        .draw(&mut display)
+        .unwrap();
+
+    let _ = epd.update_and_display_frame(&mut spi_dev, &display.buffer(), &mut delay);
+    //let _ = epd.sleep(&mut spi_dev, &mut delay);
 
 
 
