@@ -13,7 +13,7 @@ use esp_hal::{
     clock::CpuClock,
     timer::timg::TimerGroup,
     delay::Delay,
-    gpio::{Input, InputConfig, Level, Output, OutputConfig},
+    gpio::{Input, InputConfig, Level, Output, OutputConfig, Pull},
     spi::{
         Mode,
         master::{Config, Spi},
@@ -44,7 +44,7 @@ async fn main(spawner: Spawner) {
     let timer0 = TimerGroup::new(peripherals.TIMG1);
     esp_hal_embassy::init(timer0.timer0);
 
-    info!("Embassy initialized!");
+    info!("Embassy initialized!\r\n");
 
     //SPI (blocking)
     let sclk = peripherals.GPIO18;
@@ -62,12 +62,34 @@ async fn main(spawner: Spawner) {
     .with_mosi(mosi);    
 
     //epaper setup
-    let busy = Input::new(peripherals.GPIO4, InputConfig::default());//peripherals.GPIO4;
-    let reset = Output::new(peripherals.GPIO21, Level::Low, OutputConfig::default());//peripherals.GPIO21;
+    //let busy = Input::new(peripherals.GPIO4, InputConfig::default());
+    let busy = Input::new(peripherals.GPIO4, InputConfig::default().with_pull(Pull::Up));//peripherals.GPIO4;
+    let mut reset = Output::new(peripherals.GPIO21, Level::Low, OutputConfig::default());//peripherals.GPIO21;
     let dc = Output::new(peripherals.GPIO22, Level::Low, OutputConfig::default());//peripherals.GPIO22;
 
     let mut delay = Delay::new();
     let mut spi_dev = ExclusiveDevice::new(spi, cs, delay).expect("Failed to create SPI device");
+
+     info!("SPI initialized\r\n");
+    // Check BUSY pin after reset
+
+    // First, perform a proper hardware reset
+    // reset.set_low();
+    // delay.delay_millis(10); // hold low for at least 10ms
+    // reset.set_high();
+    // delay.delay_millis(200); // wait 200ms for power-up
+                             //
+    // while busy.is_low() {
+    //     delay.delay_millis(10);
+    // }
+    // info!("BUSY pin is HIGH after reset, proceeding with initialization\r\n");
+    // // Check BUSY pin
+    // let is_busy_low = busy.is_low();
+    // info!(
+    //     "BUSY pin state: {}\r\n",
+    //     if is_busy_low { "LOW" } else { "HIGH" }
+    // );
+
 
     let mut epd = Epd2in9::new(&mut spi_dev, busy, dc, reset, &mut delay, None)
        .expect("EPD init failed");
@@ -81,7 +103,7 @@ async fn main(spawner: Spawner) {
     let _ = spawner;
 
     loop {
-        info!("Hello world!");
+        info!("Hello world!\r\n");
         Timer::after(Duration::from_secs(1)).await;
     }
 
