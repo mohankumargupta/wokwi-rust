@@ -13,4 +13,8 @@ hell0_troubleshooting:
 led:
     cd led-effects; cargo build
 
+epaper:
+    cd epaper; cargo build
+
+
 
