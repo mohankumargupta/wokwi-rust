@@ -23,6 +23,14 @@ use esp_hal::{
 use log::info;
 use epd_waveshare::{epd2in9_v2::*, graphics::DisplayRotation, prelude::*};
 use embedded_hal_bus::spi::ExclusiveDevice;
+use embedded_graphics::{
+    mono_font::MonoTextStyleBuilder,
+    pixelcolor::BinaryColor::On as Black,
+    pixelcolor::BinaryColor::{self, Off as White},
+    prelude::*,
+    primitives::{Circle, Line, PrimitiveStyleBuilder},
+    text::{Baseline, Text, TextStyleBuilder},
+};
 
 extern crate alloc;
 
@@ -59,10 +67,11 @@ async fn main(spawner: Spawner) {
     )
     .unwrap()
     .with_sck(sclk)
-    .with_mosi(mosi);    
+    .with_mosi(mosi);
+            
 
     //epaper setup
-    //let busy = Input::new(peripherals.GPIO4, InputConfig::default());
+//    let busy = Input::new(peripherals.GPIO4, InputConfig::default());
     let busy = Input::new(peripherals.GPIO4, InputConfig::default().with_pull(Pull::Up));//peripherals.GPIO4;
     let mut reset = Output::new(peripherals.GPIO21, Level::Low, OutputConfig::default());//peripherals.GPIO21;
     let dc = Output::new(peripherals.GPIO22, Level::Low, OutputConfig::default());//peripherals.GPIO22;
@@ -74,25 +83,32 @@ async fn main(spawner: Spawner) {
     // Check BUSY pin after reset
 
     // First, perform a proper hardware reset
-    // reset.set_low();
-    // delay.delay_millis(10); // hold low for at least 10ms
-    // reset.set_high();
-    // delay.delay_millis(200); // wait 200ms for power-up
-                             //
+    reset.set_low();
+    delay.delay_millis(10); // hold low for at least 10ms
+    reset.set_high();
+    delay.delay_millis(200); // wait 200ms for power-up
+                             
     // while busy.is_low() {
     //     delay.delay_millis(10);
     // }
-    // info!("BUSY pin is HIGH after reset, proceeding with initialization\r\n");
-    // // Check BUSY pin
-    // let is_busy_low = busy.is_low();
-    // info!(
-    //     "BUSY pin state: {}\r\n",
-    //     if is_busy_low { "LOW" } else { "HIGH" }
-    // );
+    info!("BUSY pin is HIGH after reset, proceeding with initialization\r\n");
+    // Check BUSY pin
+    let is_busy_low = busy.is_low();
+    info!(
+        "BUSY pin state: {}\r\n",
+        if is_busy_low { "LOW" } else { "HIGH" }
+    );
 
 
     let mut epd = Epd2in9::new(&mut spi_dev, busy, dc, reset, &mut delay, None)
        .expect("EPD init failed");
+
+       let mut display = Display2in9::default();
+
+    info!("Clearing display\r\n");
+    let _ = display.clear(White.into());
+
+    let _ = epd.sleep(&mut spi_dev, &mut delay);
 
 
 
@@ -104,7 +120,8 @@ async fn main(spawner: Spawner) {
 
     loop {
         info!("Hello world!\r\n");
-        Timer::after(Duration::from_secs(1)).await;
+        //delay.delay_millis(10);
+        //Timer::after(Duration::from_secs(1)).await;
     }
 
     // for inspiration have a look at the examples at https://github.com/esp-rs/esp-hal/tree/esp-hal-v1.0.0-rc.0/examples/src/bin
