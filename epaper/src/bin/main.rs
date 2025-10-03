@@ -237,10 +237,10 @@ impl App {
 
         // Draw "Hello World" at position (10, 10)
         let _ = Text::new("TIME TAKEN", Point::new(12, 50), &character_style).draw(target);
-        let _ = Text::new("TO FIND", Point::new(12, 75), &character_style).draw(target);
-        let _ = Text::new("FONT", Point::new(12, 100), &character_style).draw(target);
+        let _ = Text::new("FINDING", Point::new(12, 75), &character_style).draw(target);
+        let _ = Text::new("LETTERS", Point::new(12, 100), &character_style).draw(target);
         let _ = Text::new("TIME TAKEN", Point::new(210, 75), &character_style).draw(target);
-        let _ = Text::new("TO DRAW", Point::new(210, 100), &character_style).draw(target);
+        let _ = Text::new("RENDERING", Point::new(210, 100), &character_style).draw(target);
         let _ = Text::new("PIE CHART", Point::new(210, 125), &character_style).draw(target);    
     }
 
