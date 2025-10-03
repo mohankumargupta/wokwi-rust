@@ -209,6 +209,11 @@ impl App {
             .fill_color(Color::Black)
             .build();
 
+        let circle_style = PrimitiveStyleBuilder::new()
+            .stroke_color(Color::Black)
+            .stroke_width(1)
+            .build();
+
         let circle_diameter = 100;
         let circle_radius = circle_diameter / 2;
 
@@ -220,6 +225,13 @@ impl App {
         )
         .into_styled(style)
         .draw(target);
+
+        let _ = Circle::new(
+            Point::new(self.width / 2 - circle_radius, -40 + self.height / 2),
+            circle_diameter as u32,
+        ).into_styled(circle_style)
+        .draw(target)
+        ;
 
         let character_style = U8g2TextStyle::new(Xkcd, Color::Black);
 
