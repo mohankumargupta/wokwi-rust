@@ -12,10 +12,10 @@ use embedded_graphics::{
     // mono_font::MonoTextStyleBuilder,
     // pixelcolor::BinaryColor::On as Black,
     draw_target::DrawTargetExt,
-    pixelcolor::BinaryColor::Off,
+    mono_font::{MonoTextStyleBuilder, ascii::FONT_6X10},
+    pixelcolor::{BinaryColor::Off, Rgb888},
     prelude::*,
-    primitives::{circle, Circle, Line, PrimitiveStyleBuilder, Sector},
-    mono_font::{ascii::FONT_6X10, MonoTextStyleBuilder},
+    primitives::{Circle, Line, PrimitiveStyleBuilder, Sector, circle},
     text::{Baseline, Text, TextStyleBuilder},
 };
 use embedded_hal_bus::spi::ExclusiveDevice;
@@ -33,6 +33,7 @@ use esp_hal::{
     timer::timg::TimerGroup,
 };
 use log::info;
+use u8g2_fonts::{fonts, U8g2TextStyle};
 
 extern crate alloc;
 
@@ -109,7 +110,6 @@ async fn main(spawner: Spawner) {
     let mut display = Display2in9::default();
     display.set_rotation(DisplayRotation::Rotate90);
 
-
     info!("Clearing display\r\n");
     let _ = display.clear(Color::White);
 
@@ -133,8 +133,6 @@ async fn main(spawner: Spawner) {
     // .draw(&mut shifted_display)
     // .unwrap();
 
-
-    
     //let _ = epd.sleep(&mut spi_dev, &mut delay);
 
     // main loop
@@ -144,14 +142,14 @@ async fn main(spawner: Spawner) {
     let bbox = &shifted_display.bounding_box();
     let width = bbox.size.width as i32;
     let height = bbox.size.height as i32;
-    
+
     let mut app = App::new(width, height);
     app.draw_pie(&mut shifted_display);
-    
+
     let _ = epd.update_and_display_frame(&mut spi_dev, &display.buffer(), &mut delay);
 
     let mut last = Instant::now();
-    
+
     loop {
         //info!("Hello world!\r\n");
         let now = Instant::now();
@@ -179,29 +177,24 @@ struct App {
 
 impl App {
     pub fn new(width: i32, height: i32) -> Self {
-        Self { 
+        Self {
             pie: true,
             width,
             height,
         }
     }
 
-    pub fn draw<D>(&mut self, target: &mut D) 
-        where
+    pub fn draw<D>(&mut self, target: &mut D)
+    where
         D: DrawTarget<Color = Color>,
     {
-      let _ = target.clear(Color::White);  
-      self.pie = !self.pie;
-      if self.pie {
-        self.draw_pie(target);
-      }
-
-      else {
-        self.draw_gag(target);
-      }
-
-      
-
+        let _ = target.clear(Color::White);
+        self.pie = !self.pie;
+        if self.pie {
+            self.draw_pie(target);
+        } else {
+            self.draw_gag(target);
+        }
     }
 
     pub fn draw_pie<D>(&self, target: &mut D)
@@ -237,8 +230,9 @@ impl App {
             .text_color(Color::Black)
             .build();
 
+        let character_style = U8g2TextStyle::new(fonts::u8g2_font_ncenB14_tr, Color::Black);
+
         // Draw "Hello World" at position (10, 10)
-        let _ = Text::new("Hello World", Point::new(10, 10), text_style)
-            .draw(target);
+        let _ = Text::new("HELLO WORLD", Point::new(60, 60), character_style).draw(target);
     }
 }
