@@ -232,10 +232,10 @@ impl App {
         //     .text_color(Color::Black)
         //     .build();
 
-        let xkcd_font = FontRenderer::new::<Xkcd>();
+        //let xkcd_font = FontRenderer::new::<Xkcd>();
 
         //let character_style = U8g2TextStyle::new(fonts::u8g2_font_ncenB14_tr, Color::Black);
-        let character_style = U8g2TextStyle::new(xkcd_font, Color::Black);
+        let character_style = U8g2TextStyle::new(Xkcd, Color::Black);
 
         // Draw "Hello World" at position (10, 10)
         let _ = Text::new("HELLO WORLD", Point::new(60, 60), character_style).draw(target);
