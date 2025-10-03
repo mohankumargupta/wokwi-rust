@@ -153,18 +153,17 @@ async fn main(spawner: Spawner) {
     let mut last = Instant::now();
     
     loop {
-        info!("Hello world!\r\n");
+        //info!("Hello world!\r\n");
+        let now = Instant::now();
+        if now - last >= Duration::from_secs(15) {
+            last = now;
 
-    let now = Instant::now();
-    if now - last >= Duration::from_secs(15) {
-        last = now;
+            app.draw(&mut display);
+            let _ = epd.update_and_display_frame(&mut spi_dev, &display.buffer(), &mut delay);
 
-        app.draw(&mut display);
-        let _ = epd.update_and_display_frame(&mut spi_dev, &display.buffer(), &mut delay);
-
-        // ✅ do your task here
-        info!("5 seconds elapsed!\r\n");
-    }
+            // ✅ do your task here
+            //info!("5 seconds elapsed!\r\n");
+        }
         delay.delay_millis(400);
         //Timer::after(Duration::from_secs(1)).await;
     }
