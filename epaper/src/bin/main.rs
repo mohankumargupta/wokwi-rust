@@ -150,20 +150,20 @@ async fn main(spawner: Spawner) {
 
     let _ = epd.update_and_display_frame(&mut spi_dev, &display.buffer(), &mut delay);
 
-    let mut last = Instant::now();
+    // let mut last = Instant::now();
 
     loop {
         //info!("Hello world!\r\n");
-        let now = Instant::now();
-        if now - last >= Duration::from_secs(15) {
-            last = now;
+        // let now = Instant::now();
+        // if now - last >= Duration::from_secs(15) {
+        //     last = now;
 
-            app.draw(&mut display);
-            let _ = epd.update_and_display_frame(&mut spi_dev, &display.buffer(), &mut delay);
+        //     app.draw(&mut display);
+        //     let _ = epd.update_and_display_frame(&mut spi_dev, &display.buffer(), &mut delay);
 
-            // ✅ do your task here
-            //info!("5 seconds elapsed!\r\n");
-        }
+        //     // ✅ do your task here
+        //     //info!("5 seconds elapsed!\r\n");
+        // }
         delay.delay_millis(400);
         //Timer::after(Duration::from_secs(1)).await;
     }
@@ -220,6 +220,16 @@ impl App {
         )
         .into_styled(style)
         .draw(target);
+
+        let character_style = U8g2TextStyle::new(Xkcd, Color::Black);
+
+        // Draw "Hello World" at position (10, 10)
+        let _ = Text::new("TIME TAKEN", Point::new(12, 50), &character_style).draw(target);
+        let _ = Text::new("TO FIND", Point::new(12, 75), &character_style).draw(target);
+        let _ = Text::new("FONT", Point::new(12, 100), &character_style).draw(target);
+        let _ = Text::new("TIME TAKEN", Point::new(210, 75), &character_style).draw(target);
+        let _ = Text::new("TO DRAW", Point::new(210, 100), &character_style).draw(target);
+        let _ = Text::new("PIE CHART", Point::new(210, 125), &character_style).draw(target);    
     }
 
     pub fn draw_gag<D>(&self, target: &mut D)
