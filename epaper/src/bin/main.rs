@@ -7,15 +7,16 @@
 )]
 
 use embassy_executor::Spawner;
-//use embassy_time::{Duration, Timer};
+use embassy_time::{Duration, Instant};
 use embedded_graphics::{
     // mono_font::MonoTextStyleBuilder,
     // pixelcolor::BinaryColor::On as Black,
     draw_target::DrawTargetExt,
-    pixelcolor::BinaryColor::{self, Off as White, On as Black},
+    pixelcolor::BinaryColor::Off,
     prelude::*,
     primitives::{circle, Circle, Line, PrimitiveStyleBuilder, Sector},
-    //text::{Baseline, Text, TextStyleBuilder},
+    mono_font::{ascii::FONT_6X10, MonoTextStyleBuilder},
+    text::{Baseline, Text, TextStyleBuilder},
 };
 use embedded_hal_bus::spi::ExclusiveDevice;
 use epd_waveshare::{epd2in9_v2::*, graphics::DisplayRotation, prelude::*};
@@ -110,7 +111,7 @@ async fn main(spawner: Spawner) {
 
 
     info!("Clearing display\r\n");
-    let _ = display.clear(White.into());
+    let _ = display.clear(Color::White);
 
     let mut shifted_display = display.translated(Point::new(0, -12));
 
@@ -140,16 +141,31 @@ async fn main(spawner: Spawner) {
 
     let _ = spawner;
 
-    let app = App::new();
     let bbox = &shifted_display.bounding_box();
     let width = bbox.size.width as i32;
     let height = bbox.size.height as i32;
-    app.draw_pie(&mut shifted_display, width, height);
+    
+    let mut app = App::new(width, height);
+    app.draw_pie(&mut shifted_display);
+    
     let _ = epd.update_and_display_frame(&mut spi_dev, &display.buffer(), &mut delay);
+
+    let mut last = Instant::now();
     
     loop {
         info!("Hello world!\r\n");
-        //delay.delay_millis(10);
+
+    let now = Instant::now();
+    if now - last >= Duration::from_secs(15) {
+        last = now;
+
+        app.draw(&mut display);
+        let _ = epd.update_and_display_frame(&mut spi_dev, &display.buffer(), &mut delay);
+
+        // ✅ do your task here
+        info!("5 seconds elapsed!\r\n");
+    }
+        delay.delay_millis(400);
         //Timer::after(Duration::from_secs(1)).await;
     }
 
@@ -158,14 +174,38 @@ async fn main(spawner: Spawner) {
 
 struct App {
     pie: bool,
+    width: i32,
+    height: i32,
 }
 
 impl App {
-    pub fn new() -> Self {
-        Self { pie: true }
+    pub fn new(width: i32, height: i32) -> Self {
+        Self { 
+            pie: true,
+            width,
+            height,
+        }
     }
 
-    pub fn draw_pie<D>(self, target: &mut D, width: i32, height: i32)
+    pub fn draw<D>(&mut self, target: &mut D) 
+        where
+        D: DrawTarget<Color = Color>,
+    {
+      let _ = target.clear(Color::White);  
+      self.pie = !self.pie;
+      if self.pie {
+        self.draw_pie(target);
+      }
+
+      else {
+        self.draw_gag(target);
+      }
+
+      
+
+    }
+
+    pub fn draw_pie<D>(&self, target: &mut D)
     where
         D: DrawTarget<Color = Color>,
     {
@@ -179,7 +219,7 @@ impl App {
         let circle_radius = circle_diameter / 2;
 
         let _ = Sector::new(
-            Point::new(width / 2 - circle_radius, -40 + height / 2),
+            Point::new(self.width / 2 - circle_radius, -40 + self.height / 2),
             circle_diameter as u32,
             0.0.deg(),
             -315.0.deg(),
@@ -188,5 +228,18 @@ impl App {
         .draw(target);
     }
 
-    pub fn draw_gag() {}
+    pub fn draw_gag<D>(&self, target: &mut D)
+    where
+        D: DrawTarget<Color = Color>,
+    {
+        // Create a text style
+        let text_style = MonoTextStyleBuilder::new()
+            .font(&FONT_6X10)
+            .text_color(Color::Black)
+            .build();
+
+        // Draw "Hello World" at position (10, 10)
+        let _ = Text::new("Hello World", Point::new(10, 10), text_style)
+            .draw(target);
+    }
 }
