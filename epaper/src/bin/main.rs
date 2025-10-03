@@ -13,10 +13,10 @@ use embedded_graphics::{
     // pixelcolor::BinaryColor::On as Black,
     draw_target::DrawTargetExt,
     mono_font::{MonoTextStyleBuilder, ascii::FONT_6X10},
-    pixelcolor::{BinaryColor::Off, Rgb888},
+    //pixelcolor::{BinaryColor::Off, Rgb888},
     prelude::*,
-    primitives::{Circle, Line, PrimitiveStyleBuilder, Sector, circle},
-    text::{Baseline, Text, TextStyleBuilder},
+    primitives::{Circle, PrimitiveStyleBuilder, Sector},
+    text::{Text},
 };
 use embedded_hal_bus::spi::ExclusiveDevice;
 use epd_waveshare::{epd2in9_v2::*, graphics::DisplayRotation, prelude::*};
@@ -33,7 +33,9 @@ use esp_hal::{
     timer::timg::TimerGroup,
 };
 use log::info;
-use u8g2_fonts::{fonts, U8g2TextStyle};
+use u8g2_fonts::{FontRenderer, U8g2TextStyle, fonts};
+
+use epaper::xkcd_font::Xkcd;
 
 extern crate alloc;
 
@@ -225,12 +227,15 @@ impl App {
         D: DrawTarget<Color = Color>,
     {
         // Create a text style
-        let text_style = MonoTextStyleBuilder::new()
-            .font(&FONT_6X10)
-            .text_color(Color::Black)
-            .build();
+        // let text_style = MonoTextStyleBuilder::new()
+        //     .font(&FONT_6X10)
+        //     .text_color(Color::Black)
+        //     .build();
 
-        let character_style = U8g2TextStyle::new(fonts::u8g2_font_ncenB14_tr, Color::Black);
+        let xkcd_font = FontRenderer::new::<Xkcd>();
+
+        //let character_style = U8g2TextStyle::new(fonts::u8g2_font_ncenB14_tr, Color::Black);
+        let character_style = U8g2TextStyle::new(xkcd_font, Color::Black);
 
         // Draw "Hello World" at position (10, 10)
         let _ = Text::new("HELLO WORLD", Point::new(60, 60), character_style).draw(target);
