@@ -40,6 +40,7 @@ fontforge p10.pdf
 ```
 3. convert bdf to u8g font 
 ```
-./u8g2/tools/font/bdfconv/bdfconv -v -b 0 -f 1 -m "65-90" -k p10.k -n "p10" -o p10.c p10.bdf
+./u8g2/tools/font/bdfconv/bdfconv -v -b 0 -f 1 -m "32,65-90" -k p10.k -n "p10" -o p10.c p10.bdf
 ```
 
+4. use ai to convert C octal array to rust array.
