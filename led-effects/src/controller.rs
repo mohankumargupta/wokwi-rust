@@ -4,12 +4,12 @@ use alloc::boxed::Box;
 use alloc::vec::Vec;
 
 
-pub struct EffectController<'a> {
-    effects: Vec<Box<dyn LedEffect + 'a>>,
+pub struct EffectController {
+    effects: Vec<Box<dyn LedEffect + Send>>,
     current_effect_index: usize,
 }
 
-impl<'a> EffectController<'a> {
+impl EffectController {
     pub fn new() -> Self {
         Self {
             effects: Vec::new(),
@@ -17,7 +17,7 @@ impl<'a> EffectController<'a> {
         }
     }
 
-    pub fn add_effect(&mut self, effect: Box<dyn LedEffect + 'a>) {
+    pub fn add_effect(&mut self, effect: Box<dyn LedEffect + Send + 'static>) {
         self.effects.push(effect);
     }
 

@@ -6,14 +6,13 @@
     holding buffers for the duration of a data transfer."
 )]
 
+use core::cell::RefCell;
+
+use critical_section::Mutex;
 // --- IMPORTS CHANGED ---
 use esp_backtrace as _;
 use esp_hal::{
-    clock::CpuClock,
-    delay::Delay,
-    main,
-    rmt::Rmt,
-    time::{Instant, Rate},
+    clock::CpuClock, delay::Delay, gpio::{Event, Input, InputConfig, Io, Pull}, handler, main, ram, rmt::Rmt, time::{Instant, Rate}
 };
 use esp_println::println;
 use esp_hal_smartled::{SmartLedsAdapter, smart_led_buffer};
@@ -27,6 +26,8 @@ use alloc::boxed::Box;
 
 // This creates a default app-descriptor required by the esp-idf bootloader.
 esp_bootloader_esp_idf::esp_app_desc!();
+static BUTTON: Mutex<RefCell<Option<Input>>> = Mutex::new(RefCell::new(None));
+static EFFECT_CONTROLLER: Mutex<RefCell<Option<EffectController>>> = Mutex::new(RefCell::new(None));
 
 const NUM_LEDS: usize = 16;
 
@@ -37,6 +38,16 @@ fn main() -> ! {
 
     let config = esp_hal::Config::default().with_cpu_clock(CpuClock::max());
     let peripherals = esp_hal::init(config);
+
+    let mut io = Io::new(peripherals.IO_MUX);
+    io.set_interrupt_handler(handler);
+
+    let button_pin = peripherals.GPIO9;
+    let mut button = Input::new(button_pin, InputConfig::default().with_pull(Pull::Up));
+    critical_section::with(|cs| {
+        button.listen(Event::FallingEdge);
+        BUTTON.borrow_ref_mut(cs).replace(button)
+    });
 
     esp_alloc::heap_allocator!(size: 64 * 1024);
 
@@ -90,4 +101,30 @@ fn main() -> ! {
         //delay.delay_ms(1000u32);
         delay.delay_millis(50u32);
     }
+}
+
+#[handler]
+#[ram]
+fn handler() {
+
+        if critical_section::with(|cs| {
+        BUTTON
+            .borrow_ref_mut(cs)
+            .as_mut()
+            .unwrap()
+            .is_interrupt_set()
+    }) {
+       
+    } else {
+
+    }
+
+    critical_section::with(|cs| {
+        BUTTON
+            .borrow_ref_mut(cs)
+            .as_mut()
+            .unwrap()
+            .clear_interrupt()
+    });
+    
 }
