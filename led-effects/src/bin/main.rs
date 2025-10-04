@@ -78,6 +78,10 @@ fn main() -> ! {
     effect_controller.add_effect(Box::new(PoliceDot::new(1.0, 2, NUM_LEDS)));
     effect_controller.add_effect(Box::new(PoliceTrail::new(1.0, 2, 8, NUM_LEDS)));
     effect_controller.set_effect_by_name("PoliceTrail");
+
+    critical_section::with(|cs| {
+        EFFECT_CONTROLLER.borrow_ref_mut(cs).replace(effect_controller);
+    });
     
     let delay = Delay::new();
 
@@ -87,12 +91,23 @@ fn main() -> ! {
        let delta = (now - last_update).as_millis() as f32 / 1000.0;
         last_update = now;
 
-        let current_effect = effect_controller.get_current_effect();
-        current_effect.before_render(delta);
+        critical_section::with(|cs| {
+            if let Some(controller) = EFFECT_CONTROLLER.borrow_ref_mut(cs).as_mut() {
+                                let current_effect = controller.get_current_effect();
+                current_effect.before_render(delta);
 
-        for i in 0..NUM_LEDS {
-            leds[i] = current_effect.render(i, NUM_LEDS);
-        }
+                for i in 0..NUM_LEDS {
+                    leds[i] = current_effect.render(i, NUM_LEDS);
+                }
+            }
+        });        
+
+        // let current_effect = effect_controller.get_current_effect();
+        // current_effect.before_render(delta);
+
+        // for i in 0..NUM_LEDS {
+        //     leds[i] = current_effect.render(i, NUM_LEDS);
+        // }
 
         // --- WRITE CALL IS NOW BLOCKING (NO .await) ---
         led.write(leds.iter().cloned()).unwrap();
@@ -106,25 +121,26 @@ fn main() -> ! {
 #[handler]
 #[ram]
 fn handler() {
-
-        if critical_section::with(|cs| {
-        BUTTON
-            .borrow_ref_mut(cs)
-            .as_mut()
-            .unwrap()
-            .is_interrupt_set()
-    }) {
-       
-    } else {
-
-    }
-
+ let mut button_pressed = false;
     critical_section::with(|cs| {
-        BUTTON
-            .borrow_ref_mut(cs)
-            .as_mut()
-            .unwrap()
-            .clear_interrupt()
+        if let Some(button) = BUTTON.borrow_ref_mut(cs).as_mut() {
+            if button.is_interrupt_set() {
+                button_pressed = true;
+                button.clear_interrupt();
+            }
+        }
     });
-    
+
+    if button_pressed {
+        // --- On button press, access the controller and change the effect ---
+        critical_section::with(|cs| {
+            // Borrow the controller mutably
+            if let Some(controller) = EFFECT_CONTROLLER.borrow_ref_mut(cs).as_mut() {
+                // Change to the next effect in the list
+                controller.next_effect();
+               
+            }
+        });
+    }    
 }
+    
