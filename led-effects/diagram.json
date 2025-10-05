@@ -34,7 +34,11 @@
       "id": "btn1",
       "top": -281.8,
       "left": -57.6,
-      "attrs": { "color": "green", "xray": "1" }
+      "attrs": { 
+        "color": "green", 
+        "xray": "1",
+        "bounce": "0" 
+      }
     }
   ],
   "connections": [
