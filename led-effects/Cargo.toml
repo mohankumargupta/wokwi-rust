@@ -36,6 +36,7 @@ static_cell = "2.1.1"
 smart-leds = "0.4.0"
 esp-hal-smartled = { git = "https://github.com/esp-rs/esp-hal-community", features = ["esp32c3"]}
 libm = "0.2"
+num-traits = {version= "0.2", default-features = false, features = ["libm"]}
 
 [profile.dev]
 # Rust debug is too slow.
