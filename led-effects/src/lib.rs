@@ -6,3 +6,4 @@ pub mod solid_effect;
 pub mod policedot_effect;
 pub mod policetrail_effect;
 pub mod drogen_effect;
+pub mod rocket_effect;
